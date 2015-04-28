@@ -10,4 +10,9 @@ public class IntegerData implements DataType<java.lang.Integer> {
         return TypeNames.INTEGER;
     }
 
+    @Override
+    public boolean isCorrectType(Integer value) {
+        return true;
+    }
+
 }

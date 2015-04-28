@@ -10,4 +10,9 @@ public class StringData implements DataType<String> {
         return TypeNames.STRING;
     }
 
+    @Override
+    public boolean isCorrectType(String value) {
+        return false;
+    }
+
 }
