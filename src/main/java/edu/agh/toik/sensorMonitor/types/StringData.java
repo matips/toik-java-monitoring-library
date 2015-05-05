@@ -12,7 +12,11 @@ public class StringData implements DataType<String> {
 
     @Override
     public boolean isCorrectType(String value) {
-        return false;
+        return true;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass());
+    }
 }

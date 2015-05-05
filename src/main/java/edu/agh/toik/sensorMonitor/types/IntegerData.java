@@ -15,4 +15,8 @@ public class IntegerData implements DataType<java.lang.Integer> {
         return true;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return this == o || !(o == null || getClass() != o.getClass());
+    }
 }

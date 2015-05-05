@@ -5,6 +5,8 @@ import java.net.InetAddress;
 public interface SensorsConfiguration {
     SensorsConfiguration setDeviceName();
 
+    SensorsConfiguration setIp(String address, int port);
+
     SensorsConfiguration addSensor(String name, DataType type);
 
     SensorsConfiguration addSensor(String name, String description, DataType type);
