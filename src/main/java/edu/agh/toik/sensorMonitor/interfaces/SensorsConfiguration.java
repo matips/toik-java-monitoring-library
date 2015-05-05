@@ -8,8 +8,6 @@ import java.net.InetAddress;
 public interface SensorsConfiguration {
     SensorsConfiguration setDeviceName(String deviceName);
 
-    SensorsConfiguration setIp(InetAddress address, int port);
-
     <T> SensorsConfiguration addSensor(String name, DataType<T> type);
 
     <T> SensorsConfigurationImpl addSensor(String name, String description, DataType<T> type);

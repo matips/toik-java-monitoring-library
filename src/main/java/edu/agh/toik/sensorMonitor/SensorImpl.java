@@ -5,12 +5,14 @@ import edu.agh.toik.sensorMonitor.interfaces.DataType;
 import edu.agh.toik.sensorMonitor.interfaces.Sensor;
 import edu.agh.toik.sensorMonitor.messages.Data;
 
+import java.io.IOException;
+
 public class SensorImpl<T> implements Sensor<T> {
     final int id;
     final String name;
     final String description;
     final DataType<T> dataType;
-    final Server server;
+    transient final Server server;
     boolean isActive = false;
 
     public SensorImpl(int id, String name, String description, DataType<T> dataType, Server server) {
@@ -51,14 +53,18 @@ public class SensorImpl<T> implements Sensor<T> {
     }
 
     @Override
-    public void push(T value) throws InvalidType {
+    public void push(T value) throws InvalidType, IOException {
         if (isActive()) {
-            if (dataType.isCorrectType(value)) {
-                Gson gson = new Gson();
-                final String serialized = gson.toJson(new Data<T>().add(this.id, value));
-                server.send(serialized);
-            } else {
-                throw new InvalidType();
+            try {
+                if (dataType.isCorrectType(value)) {
+                    Gson gson = new Gson();
+                    final String serialized = gson.toJson(new Data<T>().add(this.id, value));
+                    server.send(serialized);
+                } else {
+                    throw new InvalidType();
+                }
+            } catch (ClassCastException ex) {
+                throw new InvalidType(ex);
             }
 
         }

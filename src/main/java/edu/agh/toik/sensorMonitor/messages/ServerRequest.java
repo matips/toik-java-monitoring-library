@@ -9,7 +9,4 @@ public class ServerRequest {
         return sensorsToUpdate;
     }
 
-    public void setSensorsToUpdate(Map<Integer, Boolean> sensorsToUpdate) {
-        this.sensorsToUpdate = sensorsToUpdate;
-    }
 }
