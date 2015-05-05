@@ -1,5 +1,9 @@
 package edu.agh.toik.sensorMonitor;
 
+import edu.agh.toik.sensorMonitor.interfaces.DataType;
+import edu.agh.toik.sensorMonitor.interfaces.Sensor;
+import edu.agh.toik.sensorMonitor.interfaces.WatchedDevice;
+
 import java.util.Collection;
 
 public class WatchedDeviceImpl implements WatchedDevice {
@@ -17,7 +21,6 @@ public class WatchedDeviceImpl implements WatchedDevice {
                 .map(sensor -> (Sensor<T>) sensor)
                 .findAny()
                 .orElseThrow(NoSuchSensorException::new);
-
     }
 
 }

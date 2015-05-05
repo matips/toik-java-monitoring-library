@@ -1,4 +1,6 @@
-package edu.agh.toik.sensorMonitor;
+package edu.agh.toik.sensorMonitor.interfaces;
+
+import edu.agh.toik.sensorMonitor.InvalidType;
 
 public interface Sensor<T> {
     int getId();
@@ -8,6 +10,8 @@ public interface Sensor<T> {
     String getDescription();
 
     DataType getDataType();
+
+    boolean isActive();
 
     void push(T value) throws InvalidType;
 }

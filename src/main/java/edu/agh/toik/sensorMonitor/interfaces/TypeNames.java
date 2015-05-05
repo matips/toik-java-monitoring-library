@@ -1,4 +1,4 @@
-package edu.agh.toik.sensorMonitor;
+package edu.agh.toik.sensorMonitor.interfaces;
 
 public interface TypeNames {
     static String INTEGER = "integer";

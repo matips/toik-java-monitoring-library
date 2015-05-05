@@ -1,6 +1,6 @@
 package edu.agh.toik.sensorMonitor.messages;
 
-import edu.agh.toik.sensorMonitor.DataType;
+import edu.agh.toik.sensorMonitor.interfaces.DataType;
 
 public class SensorDefinition {
     int id;
