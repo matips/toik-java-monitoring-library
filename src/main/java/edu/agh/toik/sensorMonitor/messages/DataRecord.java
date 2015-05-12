@@ -7,10 +7,10 @@ import java.util.Date;
  */
 public class DataRecord<T> {
     private final T value;
-    private final Long timeStamp;
+    private final Long timestamp;
 
     public DataRecord(T value) {
         this.value = value;
-        this.timeStamp = new Date().getTime();
+        this.timestamp = new Date().getTime();
     }
 }

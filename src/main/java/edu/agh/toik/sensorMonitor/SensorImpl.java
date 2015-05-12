@@ -4,10 +4,12 @@ import com.google.gson.Gson;
 import edu.agh.toik.sensorMonitor.interfaces.DataType;
 import edu.agh.toik.sensorMonitor.interfaces.Sensor;
 import edu.agh.toik.sensorMonitor.messages.Data;
-
-import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class SensorImpl<T> implements Sensor<T> {
+    private static final Logger LOGGER = LogManager.getLogger(SensorImpl.class);
+
     final int id;
     final String name;
     final String description;
@@ -53,7 +55,7 @@ public class SensorImpl<T> implements Sensor<T> {
     }
 
     @Override
-    public void push(T value) throws InvalidType, IOException {
+    public void push(T value) throws InvalidType {
         if (isActive()) {
             try {
                 if (dataType.isCorrectType(value)) {
@@ -65,6 +67,8 @@ public class SensorImpl<T> implements Sensor<T> {
                 }
             } catch (ClassCastException ex) {
                 throw new InvalidType(ex);
+            } catch (InvalidStateException e) {
+                LOGGER.warn("Cannot push value to the server", e);
             }
 
         }

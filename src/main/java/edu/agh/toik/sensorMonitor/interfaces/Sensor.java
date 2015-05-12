@@ -2,8 +2,6 @@ package edu.agh.toik.sensorMonitor.interfaces;
 
 import edu.agh.toik.sensorMonitor.InvalidType;
 
-import java.io.IOException;
-
 public interface Sensor<T> {
     int getId();
 
@@ -15,5 +13,5 @@ public interface Sensor<T> {
 
     boolean isActive();
 
-    void push(T value) throws InvalidType, IOException;
+    void push(T value) throws InvalidType;
 }

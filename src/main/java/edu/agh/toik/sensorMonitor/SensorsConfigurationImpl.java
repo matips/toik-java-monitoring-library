@@ -1,6 +1,6 @@
 package edu.agh.toik.sensorMonitor;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import edu.agh.toik.sensorMonitor.interfaces.DataType;
 import edu.agh.toik.sensorMonitor.interfaces.Sensor;
 import edu.agh.toik.sensorMonitor.interfaces.WatchedDevice;
@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.net.InetAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -66,15 +67,29 @@ public class SensorsConfigurationImpl implements edu.agh.toik.sensorMonitor.inte
     public WatchedDevice open() throws IOException {
         final List<Sensor> sensorsCasted = new LinkedList<>(sensors.values());
 
-        server.connect(address, port);
         server.addOnMessageListener(this::onServerMessage);
 
         InitialMessage initialMessage = new InitialMessage();
         initialMessage.setDeviceName(deviceName);
         initialMessage.setSensors(sensorsCasted);
 
-        final String serialized = new Gson().toJson(initialMessage);
-        server.send(serialized);
+        final String serialized = new GsonBuilder()
+                .registerTypeAdapter(DataType.class, new JsonSerializer<DataType>() {
+                    @Override
+                    public JsonElement serialize(DataType dataType, Type type, JsonSerializationContext jsonSerializationContext) {
+                        return new JsonPrimitive(dataType.getTypeName());
+                    }
+                }).create().toJson(initialMessage);
+
+        server.addOnConnectionEstablishListeners(server -> {
+            try {
+                server.send(serialized);
+            } catch (InvalidStateException e) {
+                LOGGER.error(e);
+            }
+        });
+        server.connect(address, port);
+
         return new WatchedDeviceImpl(sensorsCasted);
     }
 }

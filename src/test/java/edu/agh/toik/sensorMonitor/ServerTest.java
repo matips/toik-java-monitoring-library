@@ -24,11 +24,12 @@ public class ServerTest {
         assertTrue(serverSocket.isConnected());
     }
 
-    private Socket connect(Server instance) throws IOException {
+    private Socket connect(Server instance) throws IOException, InterruptedException {
         final ServerSocket serverSocket = new ServerSocket(0);
         final int port = serverSocket.getLocalPort();
 
         instance.connect(InetAddress.getLocalHost(), port);
+        Thread.sleep(50);
         return serverSocket.accept();
     }
 
@@ -51,6 +52,7 @@ public class ServerTest {
         final Server instance = new Server();
         final Socket connection = connect(instance);
 
+        Thread.sleep(50);
         final Consumer<String> listenerMock = mock(Consumer.class);
 
         instance.addOnMessageListener(listenerMock);

@@ -35,7 +35,7 @@ public class SensorImplTest {
         ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
         verify(serverMock).send(captor.capture());
 
-        assertTrue(captor.getValue().startsWith("{\"sensors\":{\"0\":{\"value\":123,\"timeStamp\":"));
+        assertTrue(captor.getValue().startsWith("{\"sensors\":{\"0\":{\"value\":123,\"timestamp\":"));
     }
 
     @Test(expected = InvalidType.class)
