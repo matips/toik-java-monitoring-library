@@ -71,9 +71,9 @@ public class SimpleProgram {
 
         final ScheduledThreadPoolExecutor scheduledThreadPoolExecutor = new ScheduledThreadPoolExecutor(4);
         scheduledThreadPoolExecutor.scheduleAtFixedRate(() -> {
-            final double processCpuTime = cpuUsageProducer.get();
+            final double processCpuTime = cpuUsageProducer.get() * 10000;
             try {
-                simpleProgram.generateInt((int) (processCpuTime * 100));
+                simpleProgram.generateInt((int) processCpuTime);
             } catch (NoSuchSensorException | IOException e) {
                 e.printStackTrace();
             }

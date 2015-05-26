@@ -11,9 +11,7 @@ import java.net.Socket;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 
 /**
@@ -22,10 +20,8 @@ import java.util.function.Consumer;
 public class Server {
 
     private static final Logger LOGGER = LogManager.getLogger(Server.class);
-    volatile Socket socket;
-    private ReadWriteLock socketModificationLock = new ReentrantReadWriteLock();
-    private final Lock readLock = socketModificationLock.readLock();
-    private final Lock writeLock = socketModificationLock.writeLock();
+    final AtomicReference<Socket> socketAtomicReference = new AtomicReference<>();
+
     List<Consumer<String>> onMessageListeners = Collections.synchronizedList(new LinkedList<>());
 
     ByteArrayLengthHeaderSerializer serializer = new ByteArrayLengthHeaderSerializer();
@@ -35,22 +31,14 @@ public class Server {
     public void send(String serialized) throws InvalidStateException {
         LOGGER.debug("Send information to server:\n {}", serialized);
 
-        if (readLock.tryLock()) {
+        Socket socket = socketAtomicReference.get();
+        if (socket != null){
             try {
-                if (socket != null) {
-                    serializer.serialize(serialized.getBytes(), socket.getOutputStream());
-                } else {
-                    LOGGER.error("Cannot send message to server");
-                }
-            } catch (IOException ex) {
-                looseConnection(ex);
-                throw new InvalidStateException("No connection to the server");
-            } finally {
-                readLock.unlock();
+                serializer.serialize(serialized.getBytes(), socket.getOutputStream());
+            } catch (IOException e) {
+                fixConnection(e, socket);
+                LOGGER.error("Cannot send message to server");
             }
-        } else {
-            LOGGER.error("Cannot send to socket (read lock blocked)");
-            throw new InvalidStateException("Concoction to the server is not establish yet");
         }
     }
 
@@ -67,22 +55,19 @@ public class Server {
 
         final Thread listeningThread = new Thread(() -> {
             while (true) {
-                establishConnection(address, port);
-                readLock.lock();
+                Socket socket = establishConnection(address, port);
                 try {
                     if (socket != null) {
                         final String message = new String(serializer.deserialize(socket.getInputStream()));
                         LOGGER.debug("Message from server received: {}", message);
                         onMessageListeners.forEach(l -> l.accept(message));
-                    } else{
+                    } else {
                         Thread.sleep(500);
                     }
                 } catch (IOException e) {
-                    looseConnection(e);
+                    fixConnection(e, socket);
                 } catch (InterruptedException e) {
                     LOGGER.warn(e);
-                } finally {
-                    readLock.unlock();
                 }
             }
         });
@@ -91,28 +76,25 @@ public class Server {
 
     }
 
-    private void looseConnection(IOException e) {
+    private void fixConnection(IOException e, Socket socket) {
         LOGGER.error("Connection to sensor monitor server lost. Try to reestablish", e);
         IOUtils.closeQuietly(socket);
-        if (writeLock.tryLock()) {
-            socket = null;
-            writeLock.unlock();
-        }
+        socketAtomicReference.compareAndSet(socket, null);
+
     }
 
-    private void establishConnection(InetAddress address, int port) {
+    private Socket establishConnection(InetAddress address, int port) {
+        Socket socket = this.socketAtomicReference.get();
         if (socket == null) {
-            writeLock.lock();
             try {
-                this.socket = new Socket(address, port);
+                socket = new Socket(address, port);
+                socketAtomicReference.set(socket);
                 LOGGER.info("Connected with sensor monitor server on " + address + ", port " + port);
                 onConnectionEstablishListeners.forEach(listener -> listener.accept(this));
             } catch (IOException e) {
-                this.socket = null;
                 LOGGER.error("Cannot connect to server. All messages  will be discard until connection reestablish");
-            } finally {
-                writeLock.unlock();
             }
         }
+        return socket;
     }
 }

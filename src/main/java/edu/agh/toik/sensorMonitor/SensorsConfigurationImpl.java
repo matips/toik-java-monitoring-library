@@ -12,10 +12,7 @@ import org.apache.logging.log4j.Logger;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.net.InetAddress;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Mateusz Pszczolka (SG0220005) on 5/5/2015.
@@ -60,7 +57,9 @@ public class SensorsConfigurationImpl implements edu.agh.toik.sensorMonitor.inte
     private void onServerMessage(String json) {
         final ServerRequest serverRequest = new Gson().fromJson(json, ServerRequest.class);
         LOGGER.info("updating sensors active for " + serverRequest.getSensorsToUpdate().size() + " sensors");
-        serverRequest.getSensorsToUpdate().forEach((key, isActive) -> sensors.get(key).setActive(isActive));
+        serverRequest.getSensorsToUpdate().forEach((key, isActive) ->
+                        Optional.ofNullable(sensors.get(key)).ifPresent(sensor -> sensor.setActive(isActive))
+        );
     }
 
     @Override
