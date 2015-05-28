@@ -60,7 +60,7 @@ public class SensorImpl<T> implements Sensor<T> {
             try {
                 if (dataType.isCorrectType(value)) {
                     Gson gson = new Gson();
-                    final String serialized = gson.toJson(new Data<T>().add(this.id, value));
+                    final String serialized = gson.toJson(new Data<T>().add(this.id, dataType.preProcess(value)));
                     server.send(serialized);
                 } else {
                     throw new InvalidType();

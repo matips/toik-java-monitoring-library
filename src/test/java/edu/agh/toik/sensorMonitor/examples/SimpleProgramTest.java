@@ -64,7 +64,7 @@ public class SimpleProgramTest {
 
     private void connect() {
         try {
-            ServerSocket serverSocket = new ServerSocket(0);
+            ServerSocket serverSocket = new ServerSocket(0, 50, InetAddress.getLoopbackAddress());
             port = serverSocket.getLocalPort();
             this.serverSocket = serverSocket.accept();
         } catch (IOException ex) {
@@ -82,7 +82,7 @@ public class SimpleProgramTest {
         SimpleProgram instance = new SimpleProgram();
         new Thread(this::connect).start();
         Thread.sleep(50);
-        instance.run(InetAddress.getLocalHost(), port);
+        instance.run(serverSocket.getInetAddress(), port);
         instance.cpuUsageProducer = () -> mockCpuLoad;
 
         Thread.sleep(50);

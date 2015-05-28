@@ -25,10 +25,10 @@ public class ServerTest {
     }
 
     private Socket connect(Server instance) throws IOException, InterruptedException {
-        final ServerSocket serverSocket = new ServerSocket(0);
+        final ServerSocket serverSocket = new ServerSocket(0, 50, InetAddress.getLoopbackAddress());
         final int port = serverSocket.getLocalPort();
 
-        instance.connect(InetAddress.getLocalHost(), port);
+        instance.connect(serverSocket.getInetAddress(), port);
         Thread.sleep(50);
         return serverSocket.accept();
     }
